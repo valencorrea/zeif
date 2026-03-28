@@ -4,9 +4,9 @@
 
 **Goal:** Build a two-stage detection pipeline that ingests camera frames, classifies them locally for suspicious activity (shoplifting/pickpocketing), assembles 5-second clips, confirms via external vision API, and records incidents with evidence.
 
-**Architecture:** A circular buffer continuously stores the last 150 frames (5s at 30 FPS). Stage 1 classifies each frame with a local model (≤200ms). When suspicion is detected, the buffer captures 3s pre + 2s post, encodes to H.264 MP4, sends to an external vision API for confirmation. Confirmed thefts save the clip to Supabase Storage, create an incident record, and surface a 911 button in the owner's UI.
+**Architecture:** A circular buffer continuously stores the last 150 frames (5s at 30 FPS). Stage 1 classifies each frame with a local model (≤200ms) and stores the suspicion score alongside the frame. When the buffer is full, the system computes the rolling average of all 150 scores. If the average ≥ 0.6, the entire 5-second window is captured, encoded to H.264 MP4, and sent to an external vision API for confirmation. A 30-second cooldown prevents re-triggering. Confirmed thefts save the clip to Supabase Storage, create an incident record, and surface a 911 button in the owner's UI.
 
-**Tech Stack:** Next.js 15, TypeScript (strict), Supabase (Postgres + Storage + RLS), Vitest for testing, FFmpeg (via fluent-ffmpeg) for encoding.
+**Tech Stack:** Next.js 15, TypeScript (strict), Supabase (Postgres + Storage + RLS), Vitest for testing, FFmpeg for encoding.
 
 ---
 
@@ -347,11 +347,17 @@ Create `src/lib/pipeline/frame-buffer.ts`:
 ```typescript
 import type { ZeifFrame } from "./zeif-frame";
 
+export interface ScoredFrame {
+  readonly frame: ZeifFrame;
+  readonly score: number;
+}
+
 export class FrameBuffer {
   readonly capacity: number;
-  private buffer: (ZeifFrame | null)[];
+  private buffer: (ScoredFrame | null)[];
   private head = 0;
   private count = 0;
+  private scoreSum = 0;
 
   constructor(capacity: number) {
     this.capacity = capacity;
@@ -362,22 +368,37 @@ export class FrameBuffer {
     return this.count;
   }
 
-  push(frame: ZeifFrame): void {
-    this.buffer[this.head] = frame;
+  get isFull(): boolean {
+    return this.count === this.capacity;
+  }
+
+  get averageScore(): number {
+    if (this.count === 0) return 0;
+    return this.scoreSum / this.count;
+  }
+
+  push(frame: ZeifFrame, score: number): void {
+    // Subtract the score being overwritten (if buffer is full)
+    if (this.count === this.capacity && this.buffer[this.head]) {
+      this.scoreSum -= this.buffer[this.head]!.score;
+    }
+
+    this.buffer[this.head] = { frame, score };
+    this.scoreSum += score;
     this.head = (this.head + 1) % this.capacity;
     if (this.count < this.capacity) {
       this.count++;
     }
   }
 
-  getAll(): ZeifFrame[] {
+  getAll(): ScoredFrame[] {
     if (this.count === 0) return [];
 
-    const frames: ZeifFrame[] = [];
+    const frames: ScoredFrame[] = [];
     const start =
       this.count < this.capacity
         ? 0
-        : this.head; // head points to oldest when full
+        : this.head;
 
     for (let i = 0; i < this.count; i++) {
       const index = (start + i) % this.capacity;
@@ -387,10 +408,8 @@ export class FrameBuffer {
     return frames;
   }
 
-  getRange(fromTimestamp: number, toTimestamp: number): ZeifFrame[] {
-    return this.getAll().filter(
-      (f) => f.timestamp >= fromTimestamp && f.timestamp <= toTimestamp
-    );
+  getFrames(): ZeifFrame[] {
+    return this.getAll().map((sf) => sf.frame);
   }
 }
 ```
@@ -585,7 +604,8 @@ export interface ZoneSegment {
   readonly frequency: number; // 0-1 percentage
 }
 
-export const SUSPICION_THRESHOLD = 0.4;
+export const ROLLING_AVERAGE_THRESHOLD = 0.6;
+export const TRIGGER_COOLDOWN_MS = 30_000; // 30 seconds
 ```
 
 - [ ] **Step 2: Run type-check to verify no errors**
@@ -681,10 +701,6 @@ export interface FrameClassifier {
   classify(frame: ZeifFrame): Promise<ClassificationResult>;
 }
 
-export function isSuspicious(result: ClassificationResult): boolean {
-  return result.score >= SUSPICION_THRESHOLD;
-}
-
 export function createStubClassifier(
   score: number,
   signals: string[]
@@ -711,7 +727,7 @@ git commit -m "feat: add FrameClassifier interface, stub, and isSuspicious helpe
 
 ---
 
-## Task 6: Clip Capture (Pre + Post Event)
+## Task 6: Clip Capture (Rolling Average Trigger)
 
 **Files:**
 - Create: `src/lib/pipeline/clip-capture.ts`
@@ -723,60 +739,68 @@ Create `tests/lib/pipeline/clip-capture.test.ts`:
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import { captureClip } from "@/lib/pipeline/clip-capture";
+import { captureClip, shouldTriggerCapture } from "@/lib/pipeline/clip-capture";
 import { FrameBuffer } from "@/lib/pipeline/frame-buffer";
 import { createZeifFrame } from "@/lib/pipeline/zeif-frame";
+import { ROLLING_AVERAGE_THRESHOLD } from "@/lib/detection/detection-types";
 
-function fillBuffer(buffer: FrameBuffer, count: number, startTimestamp = 0) {
+function fillBufferWithScores(
+  buffer: FrameBuffer,
+  count: number,
+  score: number
+) {
   for (let i = 0; i < count; i++) {
     buffer.push(
       createZeifFrame({
         imageData: new Uint8Array([i % 256]),
         sourceId: "camera-001",
-        timestamp: startTimestamp + i * 33, // ~30fps = 33ms per frame
-      })
+        timestamp: i * 33,
+      }),
+      score
     );
   }
 }
 
+describe("shouldTriggerCapture", () => {
+  it("returns true when buffer is full and average >= threshold", () => {
+    const buffer = new FrameBuffer(150);
+    fillBufferWithScores(buffer, 150, 0.7); // avg = 0.7 > 0.6
+
+    expect(shouldTriggerCapture(buffer)).toBe(true);
+  });
+
+  it("returns false when average is below threshold", () => {
+    const buffer = new FrameBuffer(150);
+    fillBufferWithScores(buffer, 150, 0.3); // avg = 0.3 < 0.6
+
+    expect(shouldTriggerCapture(buffer)).toBe(false);
+  });
+
+  it("returns false when buffer is not full yet", () => {
+    const buffer = new FrameBuffer(150);
+    fillBufferWithScores(buffer, 50, 0.9); // high score but not full
+
+    expect(shouldTriggerCapture(buffer)).toBe(false);
+  });
+});
+
 describe("captureClip", () => {
-  it("captures frames from buffer as a snapshot", () => {
+  it("captures all frames from a full buffer", () => {
     const buffer = new FrameBuffer(150);
-    fillBuffer(buffer, 150);
+    fillBufferWithScores(buffer, 150, 0.7);
 
-    const clip = captureClip(buffer, 75 * 33); // cut point in the middle
+    const clip = captureClip(buffer);
 
-    expect(clip.frames.length).toBeGreaterThan(0);
-    expect(clip.frames.length).toBeLessThanOrEqual(150);
-    expect(clip.cutPointTimestamp).toBe(75 * 33);
-  });
-
-  it("includes metadata about pre and post durations", () => {
-    const buffer = new FrameBuffer(150);
-    fillBuffer(buffer, 150);
-
-    const cutTimestamp = 75 * 33;
-    const clip = captureClip(buffer, cutTimestamp);
-
-    expect(clip.cutPointTimestamp).toBe(cutTimestamp);
+    expect(clip.frames).toHaveLength(150);
+    expect(clip.averageScore).toBeCloseTo(0.7);
     expect(clip.sourceId).toBe("camera-001");
-  });
-
-  it("captures all available frames when buffer is not full", () => {
-    const buffer = new FrameBuffer(150);
-    fillBuffer(buffer, 50); // only 50 frames
-
-    const cutTimestamp = 25 * 33;
-    const clip = captureClip(buffer, cutTimestamp);
-
-    expect(clip.frames.length).toBe(50);
   });
 
   it("returns frames ordered by timestamp (oldest first)", () => {
     const buffer = new FrameBuffer(150);
-    fillBuffer(buffer, 150);
+    fillBufferWithScores(buffer, 150, 0.5);
 
-    const clip = captureClip(buffer, 75 * 33);
+    const clip = captureClip(buffer);
     for (let i = 1; i < clip.frames.length; i++) {
       expect(clip.frames[i].timestamp).toBeGreaterThan(
         clip.frames[i - 1].timestamp
@@ -798,24 +822,27 @@ Create `src/lib/pipeline/clip-capture.ts`:
 ```typescript
 import type { ZeifFrame } from "./zeif-frame";
 import type { FrameBuffer } from "./frame-buffer";
+import { ROLLING_AVERAGE_THRESHOLD } from "@/lib/detection/detection-types";
 
 export interface CapturedClip {
   readonly frames: ZeifFrame[];
-  readonly cutPointTimestamp: number;
+  readonly averageScore: number;
   readonly sourceId: string;
   readonly capturedAt: number;
 }
 
-export function captureClip(
-  buffer: FrameBuffer,
-  cutPointTimestamp: number
-): CapturedClip {
-  const frames = buffer.getAll();
+export function shouldTriggerCapture(buffer: FrameBuffer): boolean {
+  return buffer.isFull && buffer.averageScore >= ROLLING_AVERAGE_THRESHOLD;
+}
+
+export function captureClip(buffer: FrameBuffer): CapturedClip {
+  const scoredFrames = buffer.getAll();
+  const frames = scoredFrames.map((sf) => sf.frame);
   const sourceId = frames.length > 0 ? frames[0].sourceId : "unknown";
 
   return {
     frames,
-    cutPointTimestamp,
+    averageScore: buffer.averageScore,
     sourceId,
     capturedAt: Date.now(),
   };
@@ -825,13 +852,13 @@ export function captureClip(
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/lib/pipeline/clip-capture.test.ts`
-Expected: 4 tests pass
+Expected: 5 tests pass
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add src/lib/pipeline/clip-capture.ts tests/lib/pipeline/clip-capture.test.ts
-git commit -m "feat: add clip capture from buffer with pre+post event snapshot"
+git commit -m "feat: add clip capture with rolling average trigger (threshold >= 0.6)"
 ```
 
 ---
