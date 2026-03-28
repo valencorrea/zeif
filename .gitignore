@@ -41,5 +41,8 @@ next-env.d.ts
 # claude code
 .claude/
 
+# worktrees
+.worktrees/
+
 # OS
 .DS_Store
