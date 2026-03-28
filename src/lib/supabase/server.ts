@@ -25,8 +25,8 @@ export async function createClient() {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // The `setAll` method is called from a Server Component.
-          // This can be ignored if you have middleware refreshing sessions.
+          // Expected: cookies are read-only in Server Components.
+          // Session refresh is handled by middleware. See @supabase/ssr docs.
         }
       },
     },
