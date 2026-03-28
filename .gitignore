@@ -47,4 +47,23 @@ next-env.d.ts
 # OS
 .DS_Store
 
+# Python virtual environments
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# ML datasets, buffers, checkpoints, and downloaded model weights
+script/STG_NF/data/
+script/STG_NF/buffer/
+script/STG_NF/checkpoints/
+script/STG_NF/RetailS.zip
+script/PoseBasedModel/data/
+**/*.pt
+**/*.pth
+
+# Jupyter notebook checkpoints
+**/.ipynb_checkpoints/
+
 /scripts/evidence/
