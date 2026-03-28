@@ -22,7 +22,11 @@ pip install -r requirements.txt
 
 ### 2. Add the dataset
 
-Download `RetailS.zip` and place it inside `script/STG_NF/`:
+Download `RetailS.zip` from the official repository:
+
+> **[https://github.com/TeCSAR-UNCC/RetailS](https://github.com/TeCSAR-UNCC/RetailS?tab=readme-ov-file)**
+
+Place the zip inside `script/STG_NF/`:
 
 ```
 script/STG_NF/
