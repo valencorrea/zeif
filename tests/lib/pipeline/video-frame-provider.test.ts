@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { VideoFrameProvider } from "@/lib/pipeline/video-frame-provider";
 import type { ZeifFrame } from "@/lib/pipeline/zeif-frame";
 import path from "path";

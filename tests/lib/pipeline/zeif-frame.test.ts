@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createZeifFrame, type ZeifFrame } from "@/lib/pipeline/zeif-frame";
+import { createZeifFrame } from "@/lib/pipeline/zeif-frame";
 
 describe("ZeifFrame", () => {
   it("creates a frame with required fields", () => {

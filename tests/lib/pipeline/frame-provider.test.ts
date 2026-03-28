@@ -11,6 +11,7 @@ describe("IZeifFrameProvider contract", () => {
       sourceId: "test-camera",
       async start() {},
       async stop() {},
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onFrame(_handler: FrameHandler) {},
     };
 
