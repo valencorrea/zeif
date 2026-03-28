@@ -17,6 +17,7 @@ import {
   ListFilter,
 } from 'lucide-react';
 import { CameraView } from './camera-view';
+import { DatabaseView } from './database-view';
 
 // ─── Left Sidebar ─────────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ function LeftSidebar({ activeView, onNavigate }: { activeView: string; onNavigat
     { label: 'Floor View', icon: Video },
     { label: 'Analytics', icon: BarChart2 },
     { label: 'Orders', icon: ShoppingBag },
-    { label: 'Catalogue', icon: BookOpen },
+    { label: 'Database', icon: BookOpen },
   ];
 
   return (
@@ -347,7 +348,8 @@ export function Dashboard() {
 
         <div className="p-12 space-y-16 mt-20 md:mt-0">
           {activeView === 'Floor View' && <CameraView />}
-          {activeView !== 'Floor View' && (<>
+          {activeView === 'Database' && <DatabaseView />}
+          {activeView !== 'Floor View' && activeView !== 'Database' && (<>
           {/* Page title */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div>
