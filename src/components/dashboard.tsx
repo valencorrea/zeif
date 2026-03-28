@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import {
   LayoutDashboard,
@@ -15,16 +16,17 @@ import {
   Search,
   ListFilter,
 } from 'lucide-react';
+import { CameraView } from './camera-view';
 
 // ─── Left Sidebar ─────────────────────────────────────────────────────────────
 
-function LeftSidebar() {
+function LeftSidebar({ activeView, onNavigate }: { activeView: string; onNavigate: (label: string) => void }) {
   const navItems = [
-    { label: 'Dashboard', icon: LayoutDashboard, active: true },
-    { label: 'Floor View', icon: Video, active: false },
-    { label: 'Analytics', icon: BarChart2, active: false },
-    { label: 'Orders', icon: ShoppingBag, active: false },
-    { label: 'Catalogue', icon: BookOpen, active: false },
+    { label: 'Dashboard', icon: LayoutDashboard },
+    { label: 'Floor View', icon: Video },
+    { label: 'Analytics', icon: BarChart2 },
+    { label: 'Orders', icon: ShoppingBag },
+    { label: 'Catalogue', icon: BookOpen },
   ];
 
   return (
@@ -51,19 +53,19 @@ function LeftSidebar() {
 
       {/* Nav links */}
       <nav className="flex flex-col gap-1">
-        {navItems.map(({ label, icon: Icon, active }) => (
-          <a
+        {navItems.map(({ label, icon: Icon }) => (
+          <button
             key={label}
-            href="#"
-            className={`flex items-center gap-4 rounded-xl px-6 py-4 font-semibold text-sm tracking-wide uppercase transition-all active:scale-[0.98] ${
-              active
+            onClick={() => onNavigate(label)}
+            className={`flex items-center gap-4 rounded-xl px-6 py-4 font-semibold text-sm tracking-wide uppercase transition-all active:scale-[0.98] text-left ${
+              activeView === label
                 ? 'bg-[#a6f3cc] text-[#1b1d0e] shadow-sm'
                 : 'text-[#1b1d0e]/70 hover:translate-x-1 hover:text-[#764d93] duration-200'
             }`}
           >
             <Icon size={18} />
             {label}
-          </a>
+          </button>
         ))}
       </nav>
 
@@ -331,17 +333,21 @@ const feeds: CameraFeedProps[] = [
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function Dashboard() {
+  const [activeView, setActiveView] = useState('Dashboard');
+
   return (
     <div
       className="flex min-h-screen text-[#1b1d0e]"
       style={{ backgroundColor: '#fbfbe2', fontFamily: 'var(--font-inter), Inter, sans-serif' }}
     >
-      <LeftSidebar />
+      <LeftSidebar activeView={activeView} onNavigate={setActiveView} />
 
       <main className="flex-1 flex flex-col min-w-0">
         <TopNav />
 
         <div className="p-12 space-y-16 mt-20 md:mt-0">
+          {activeView === 'Floor View' && <CameraView />}
+          {activeView !== 'Floor View' && (<>
           {/* Page title */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div>
@@ -422,6 +428,7 @@ export function Dashboard() {
               </div>
             </div>
           </div>
+          </>)}
         </div>
       </main>
 
