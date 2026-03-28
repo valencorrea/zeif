@@ -117,6 +117,7 @@ export class VideoFrameProvider implements IZeifFrameProvider {
     let buffer = Buffer.alloc(0);
 
     const args = [
+      "-re", // read input at native frame rate (simulate real-time)
       "-i",
       this.config.filePath,
       "-vf",
