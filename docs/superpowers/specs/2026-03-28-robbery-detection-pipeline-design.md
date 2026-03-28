@@ -27,13 +27,17 @@ Each frame from the camera is classified individually by a local model running o
 **Behavior:**
 - Must complete classification in ≤ 200ms per frame
 - No database writes in this path
-- Produces a suspicion score from 0 to 1
-- Score < 0.4 → discard, continue
-- Score ≥ 0.4 → flag as suspicious, trigger clip capture (Stage 2)
+- Produces a suspicion score from 0 to 1 per frame
+- Each frame's score is stored alongside it in the circular buffer
+- Every time the buffer is full (150 frames = 5 seconds), the system computes the **average score** across all 150 frames
+- Average < 0.6 → no action, buffer continues overwriting
+- Average ≥ 0.6 → the 5-second window is suspicious → capture clip and pass to Stage 2
+
+This approach avoids false positives from a single ambiguous frame. A sustained pattern of suspicious behavior across 5 seconds is required to trigger confirmation.
 
 ### Stage 2: Video Confirmation (External Vision API)
 
-When Stage 1 flags a frame as suspicious, the system captures a 5-second clip and sends it to an external vision API (e.g., GPT-4V, Claude Vision) for confirmation.
+When Stage 1's rolling average crosses the 0.6 threshold, the system captures the current 5-second clip from the buffer and sends it to an external vision API (e.g., GPT-4V, Claude Vision) for confirmation.
 
 ## Frame Buffer — Circular Buffer
 
@@ -46,18 +50,15 @@ The system maintains a circular buffer that always holds the last 5 seconds of f
 
 **Queue overflow (Principle V):** If the classification queue exceeds 10 frames, skip older frames with logging. Never stall silently.
 
-## Clip Capture — Pre + Post Event
+## Clip Capture — Rolling Average Trigger
 
-When Stage 1 detects suspicion at frame N:
+When the rolling average of the 150 frames in the buffer crosses 0.6:
 
-1. Mark frame N as the cut point
-2. Continue buffering for 2 more seconds (60 frames at 30 FPS)
-3. Copy 150 frames from the buffer: **3 seconds pre-event + 2 seconds post-event**
-4. The buffer keeps running — the camera never stops
+1. Copy all 150 frames from the buffer (these ARE the 5-second clip — no pre/post split needed)
+2. The buffer resets its scores and keeps running — the camera never stops
+3. A cooldown period prevents re-triggering immediately (configurable, default: 30 seconds)
 
-**Why 3+2 split:**
-- Pre-event (3s): What the person was doing before the suspicious action — approaching the product, looking around, positioning. Critical context for confirmation.
-- Post-event (2s): What they did after — concealed the item, walked away, headed for exit.
+**Why the full buffer IS the clip:** Unlike the previous design where we split 3s pre + 2s post around a single suspicious frame, the rolling average approach means ALL 150 frames contributed to the suspicion. The entire 5-second window is relevant context — the API needs to see the whole sequence that triggered the alert.
 
 ## Video Encoding
 
@@ -114,15 +115,17 @@ The clip is sent to an external vision API with a structured prompt:
 
 ## Key Entities
 
-- **ZeifFrame**: Raw image data + timestamp + source camera ID + metadata
-- **FrameBuffer**: Circular buffer of 150 ZeifFrames
-- **Clip**: Encoded MP4 + metadata (cut point timestamp, pre/post duration, source buffer)
+- **ZeifFrame**: Raw image data + timestamp + source camera ID + metadata + suspicion score
+- **FrameBuffer**: Circular buffer of 150 ZeifFrames with rolling average calculation
+- **Clip**: Encoded MP4 + metadata (average score, trigger timestamp, source buffer)
 - **Incident**: Confirmed or unconfirmed event record (timestamp, type, confidence, clip reference, zone context, actions taken)
 - **ZoneSegment**: Theft type distribution for the commerce's geographic zone (shoplifting, pickpocketing, etc.)
 
 ## Constraints
 
 - Frame classification budget: ≤ 200ms (no DB writes in this path)
+- Rolling average threshold: ≥ 0.6 to trigger Stage 2
+- Cooldown between triggers: 30 seconds (configurable)
 - Clip encoding: runs in background worker thread, never blocks pipeline
 - API cost: centavos per detection
 - Single fixed camera for MVP, multi-camera designed for later
