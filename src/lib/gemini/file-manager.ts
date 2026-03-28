@@ -1,5 +1,3 @@
-import "server-only";
-
 import { GoogleAIFileManager, FileState } from "@google/generative-ai/server";
 
 import { GeminiConfigError } from "./client";

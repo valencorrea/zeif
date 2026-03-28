@@ -1,5 +1,3 @@
-import "server-only";
-
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -8,7 +6,7 @@ import { uploadVideoBuffer, waitForFileActive, deleteFile } from "./file-manager
 import type { AnalysisResult } from "./types";
 import { IncidentNotFoundError } from "./types";
 
-const DEFAULT_MODEL = "gemini-2.0-flash";
+const DEFAULT_MODEL = "gemini-2.5-flash";
 
 const ANALYSIS_SCHEMA = {
   type: SchemaType.OBJECT as const,

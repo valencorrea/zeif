@@ -3,7 +3,7 @@ import { uploadVideoBuffer, waitForFileActive, deleteFile } from "./file-manager
 import { GeminiConfigError } from "./client";
 import type { AnalysisResult } from "./types";
 
-const DEFAULT_MODEL = "gemini-2.0-flash";
+const DEFAULT_MODEL = "gemini-2.5-flash";
 
 const ANALYSIS_SCHEMA = {
   type: SchemaType.OBJECT as const,
