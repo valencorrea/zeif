@@ -4,6 +4,7 @@ import type { ZeifFrame } from "@/lib/pipeline/zeif-frame";
 import path from "path";
 
 const TEST_VIDEO = path.resolve(__dirname, "../../../fixtures/test-video.mp4");
+const AUDIO_ONLY = path.resolve(__dirname, "../../../fixtures/audio-only.m4a");
 
 describe("VideoFrameProvider", () => {
   let provider: VideoFrameProvider;
@@ -39,6 +40,19 @@ describe("VideoFrameProvider", () => {
           loop: false,
         })
     ).toThrow("Video file not found");
+  });
+
+  it("rejects audio-only files on start()", async () => {
+    provider = new VideoFrameProvider({
+      filePath: AUDIO_ONLY,
+      fps: 10,
+      width: 320,
+      height: 240,
+      sourceId: "test-cam",
+      loop: false,
+    });
+
+    await expect(provider.start()).rejects.toThrow("No video stream");
   });
 
   it("delivers frames as ZeifFrame objects via onFrame", async () => {

@@ -6,5 +6,5 @@ export interface IZeifFrameProvider {
   readonly sourceId: string;
   start(): Promise<void>;
   stop(): Promise<void>;
-  onFrame(handler: FrameHandler): void;
+  onFrame(handler: FrameHandler): () => void;
 }

@@ -13,12 +13,9 @@ interface CreateFrameInput {
   metadata?: Record<string, unknown>;
 }
 
-let frameCounter = 0;
-
 export function createZeifFrame(input: CreateFrameInput): ZeifFrame {
-  frameCounter++;
   return {
-    id: `frame-${Date.now()}-${frameCounter}`,
+    id: crypto.randomUUID(),
     imageData: input.imageData,
     timestamp: input.timestamp ?? Date.now(),
     sourceId: input.sourceId,
