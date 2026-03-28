@@ -35,14 +35,8 @@ function LeftSidebar() {
           Zeif
         </span>
         <div className="flex items-center gap-3 mt-6">
-          <div className="relative w-10 h-10 rounded-full bg-[#e4e4cc] overflow-hidden shrink-0">
-            <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfM0CVCnxbrjcgPCHo5m9tvXV-18k9VKannn-1RzWa-v4enzqw8gsgavnIFumQDM9o-uXEXAKgA1WPIgUmdNzgCiWn1lxJpuf2YrpDxS1laIhWBFqDSz_mqesns0y6crW0QDrNhRb9Z5r2Iak5pGbIRYLAlJz8w8slUjYqYwrctzs4TozsRxhpKqqv59OgDZMbBi02u4NS8xKmhTCnUZkjzj9twosW-i1fYXJ1wSXbUiO-BdpBSg7SGJt8CIzXJKzB7nE"
-              alt="Store manager portrait"
-              fill
-              sizes="40px"
-              className="object-cover"
-            />
+          <div className="w-10 h-10 rounded-full bg-[#d4d4b8] shrink-0 flex items-center justify-center">
+            <span className="text-xs font-bold text-[#1b1d0e]">SM</span>
           </div>
           <div>
             <p className="font-semibold text-xs tracking-wide uppercase text-[#1b1d0e]">
