@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "git-advanced-workflows": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "aa06b88293eb756254c8da0d5e8e5795d1a5948e5fb9d69d0c5288d880a2564d"
+    }
+  }
+}
