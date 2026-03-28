@@ -2,7 +2,7 @@ import "server-only";
 
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
-import { createServiceClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { GeminiConfigError } from "./client";
 import { uploadVideoBuffer, waitForFileActive, deleteFile } from "./file-manager";
 import type { AnalysisResult } from "./types";
@@ -11,13 +11,13 @@ import { IncidentNotFoundError } from "./types";
 const DEFAULT_MODEL = "gemini-2.0-flash";
 
 const ANALYSIS_SCHEMA = {
-  type: SchemaType.OBJECT,
+  type: SchemaType.OBJECT as const,
   properties: {
-    shoplifting: { type: SchemaType.BOOLEAN },
-    confidence: { type: SchemaType.NUMBER },
-    reasoning: { type: SchemaType.STRING },
+    shoplifting: { type: SchemaType.BOOLEAN as const },
+    confidence: { type: SchemaType.NUMBER as const },
+    reasoning: { type: SchemaType.STRING as const },
   },
-  required: ["shoplifting", "confidence", "reasoning"],
+  required: ["shoplifting", "confidence", "reasoning"] as string[],
 };
 
 const ANALYSIS_PROMPT =
@@ -45,7 +45,7 @@ function parseAnalysisResult(raw: unknown): AnalysisResult {
 }
 
 export async function analyzeClip(incidentId: string): Promise<AnalysisResult> {
-  const supabase = createServiceClient();
+  const supabase = createAdminClient();
 
   const { data: incident, error: fetchError } = await supabase
     .from("incidents")
