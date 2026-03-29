@@ -99,38 +99,68 @@ La app estara disponible en http://localhost:3000.
 
 
 zeif/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── page.tsx            # Dashboard (grilla de camaras)
-│   │   ├── floor-view/         # Vista de planta con grabacion
-│   │   ├── face-db/            # Base de datos de rostros
-│   │   └── api/
-│   │       ├── analyze-video/  # Endpoint de analisis de video
-│   │       └── faces/          # Endpoints de face matching
-│   ├── components/
-│   │   ├── app-shell.tsx       # Layout (sidebar + topbar + actividad)
-│   │   ├── dashboard.tsx       # Vista principal del operador
-│   │   ├── camera-grid.tsx     # Grilla 3x2 de camaras
-│   │   ├── camera-card.tsx     # Feed individual de camara
-│   │   ├── activity-panel.tsx  # Panel de alertas en tiempo real
-│   │   ├── face-db-view.tsx    # Vista de sospechosos
-│   │   └── sidebar.tsx         # Navegacion lateral
-│   └── lib/
-│       ├── openai/             # Integracion con OpenAI
-│       │   ├── analyze-video.ts    # Extraccion de frames → GPT-4.1
-│       │   ├── face-capture.ts     # Captura facial + embeddings
-│       │   ├── frame-extractor.ts  # Extraccion de frames con FFmpeg
-│       │   └── types.ts            # AnalysisResult, errores
-│       ├── pipeline/           # Pipeline de frames (hardware-agnostic)
-│       │   ├── frame-provider.ts   # Interface IZeifFrameProvider
-│       │   └── zeif-frame.ts       # Tipo normalizado de frame
-│       └── supabase/           # Cliente de Supabase (server-side)
-├── supabase/
-│   └── migrations/             # Esquema: tenants, incidents, audit_logs, face_captures
-├── specs/                      # Especificaciones por feature
-└── public/
-    └── videos/                 # Clips demo para la UI
 
+├── src/
+
+│   ├── app/                      # Next.js App Router
+
+│   │   ├── page.tsx              # Dashboard (grilla de cámaras)
+
+│   │   ├── floor-view/           # Vista de planta con grabación
+
+│   │   ├── face-db/              # Base de datos de rostros
+
+│   │   └── api/
+
+│   │       ├── analyze-video/    # Endpoint de análisis de video
+
+│   │       └── faces/            # Endpoints de face matching
+
+│   ├── components/
+
+│   │   ├── app-shell.tsx         # Layout (sidebar + topbar + actividad)
+
+│   │   ├── dashboard.tsx         # Vista principal del operador
+
+│   │   ├── camera-grid.tsx       # Grilla 3x2 de cámaras
+
+│   │   ├── camera-card.tsx       # Feed individual de cámara
+
+│   │   ├── activity-panel.tsx    # Panel de alertas en tiempo real
+
+│   │   ├── face-db-view.tsx      # Vista de sospechosos
+
+│   │   └── sidebar.tsx           # Navegación lateral
+
+│   ├── lib/
+
+│   │   ├── openai/               # Integración con OpenAI
+
+│   │   │   ├── analyze-video.ts  # Extracción de frames → GPT-4.1
+
+│   │   │   └── face-capture.ts   # Captura facial + embeddings
+
+│   │   ├── frame-extractor.ts    # Extracción de frames con FFmpeg
+
+│   │   ├── types.ts              # AnalysisResult, errores
+
+│   │   ├── pipeline/             # Pipeline de frames (hardware-agnostic)
+
+│   │   │   ├── frame-provider.ts # Interface IZeifFrameProvider
+
+│   │   │   └── zeif-frame.ts     # Tipo normalizado de frame
+
+│   │   └── supabase/             # Cliente de Supabase (server-side)
+
+├── supabase/
+
+│   └── migrations/               # Esquema: tenants, incidents, audit_logs...
+
+├── specs/                        # Especificaciones por feature
+
+└── public/
+
+│   └── videos/                   # Clips demo para la UI
 
 ---
 
