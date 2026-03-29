@@ -29,9 +29,6 @@ export function DatabaseView() {
         <h1 className="text-8xl font-black tracking-tighter text-[#1b1d0e]">
           Suspicious behavior
         </h1>
-        <p className="mt-4 text-[#47473f] font-medium tracking-widest uppercase text-sm">
-          People bucket
-        </p>
       </div>
 
       {state === 'loading' && (
