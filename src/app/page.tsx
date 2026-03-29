@@ -8,15 +8,22 @@ import { Dashboard } from '@/components/dashboard';
 type Phase = 'welcome' | 'curtain-in' | 'curtain-out' | 'dashboard';
 
 export default function Home() {
-  const [phase, setPhase] = useState<Phase>('welcome');
+  const [phase, setPhase] = useState<Phase | null>(null);
 
   useEffect(() => {
+    if (sessionStorage.getItem('zeif_intro_shown')) {
+      setPhase('dashboard');
+      return;
+    }
+    setPhase('welcome');
     const t = setTimeout(() => setPhase('curtain-in'), 3200);
     return () => clearTimeout(t);
   }, []);
 
+  if (phase === null) return null;
+
   return (
-    <div className="relative w-full min-h-screen overflow-hidden">
+    <div className={`relative w-full min-h-screen ${phase !== 'dashboard' ? 'overflow-hidden' : ''}`}>
 
       {/* Welcome screen */}
       {(phase === 'welcome' || phase === 'curtain-in') && (
@@ -54,7 +61,7 @@ export default function Home() {
 
       {/* Dashboard — rendered behind the outgoing curtain */}
       {(phase === 'curtain-out' || phase === 'dashboard') && (
-        <div className="absolute inset-0">
+        <div className={phase === 'dashboard' ? '' : 'absolute inset-0'}>
           <Dashboard />
         </div>
       )}
@@ -75,7 +82,10 @@ export default function Home() {
             }
             onAnimationComplete={() => {
               if (phase === 'curtain-in') setPhase('curtain-out');
-              else setPhase('dashboard');
+              else {
+                sessionStorage.setItem('zeif_intro_shown', '1');
+                setPhase('dashboard');
+              }
             }}
           />
         )}
