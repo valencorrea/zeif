@@ -180,20 +180,8 @@ Este flujo demuestra la viabilidad de la clasificacion por vision, la captura fa
 
 La arquitectura objetivo opera de forma continua y autonoma en tres etapas:
 
+![Texto alternativo](image.png)
 
-                          Etapa 1                    Etapa 2                    Etapa 3
-Camara ──> Captura continua ──> Deteccion de ──> Scoring model ──> Modelo de vision ──> Triggers
-           de frames            movimiento       (avg >= 0.6?)     (¿es un robo?)
-                                (infrarrojo)          │                    │
-                                    │                 │              (si positivo)
-                                    │            Si no supera            │
-                               Si no hay         el umbral         ┌─────┴──────┐
-                               movimiento            │             │            │
-                                    │           Descarte       Vectorizar   Otros triggers
-                               Descarte                        rostro      (alertas, etc.)
-                                                                  │
-                                                            Guardar en DB
-                                                            (pgvector)
 
 
 *Etapa 1 — Deteccion de movimiento.* Las camaras capturan frames de forma continua. Un procesamiento por infrarrojo determina si hay movimiento en la escena. Si no hay actividad, los frames se descartan sin consumir recursos de IA.
