@@ -27,10 +27,10 @@ export function DatabaseView() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-8xl font-black tracking-tighter text-[#1b1d0e]">
-          Database
+          Suspicious behavior
         </h1>
         <p className="mt-4 text-[#47473f] font-medium tracking-widest uppercase text-sm">
-          People bucket · showing up to 10 files
+          People bucket
         </p>
       </div>
 
@@ -48,7 +48,7 @@ export function DatabaseView() {
 
       {state === 'ready' && files.length === 0 && (
         <p className="text-[#47473f] uppercase text-xs font-bold tracking-widest">
-          No files found in the faces bucket.
+          No files found in the people bucket.
         </p>
       )}
 

@@ -33,6 +33,8 @@ export async function GET() {
     );
   }
 
+  console.log("[api/storage] raw data:", JSON.stringify(data, null, 2));
+
   const files: StorageFile[] = (data ?? []).map((file) => {
     const { data: urlData } = supabase.storage
       .from(BUCKET)
