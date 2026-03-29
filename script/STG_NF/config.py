@@ -14,8 +14,11 @@ BUFFER_DIR    = ROOT / "buffer"
 RETAIL_ZIP    = ROOT / "RetailS.zip"
 RETAIL_DIR    = DATA_ROOT / "RetailS"
 
+CLIPS_DIR     = ROOT / "clips"
+
 CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
 BUFFER_DIR.mkdir(parents=True, exist_ok=True)
+CLIPS_DIR.mkdir(parents=True, exist_ok=True)
 
 # ── Skeleton / window ──────────────────────────────────────────────────────────
 NUM_JOINTS    = 15          # 15-keypoint schema (no facial landmarks)

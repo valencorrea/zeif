@@ -138,3 +138,10 @@ Use skills when applicable. Key skills for this project:
 - Every subsystem must define its failure mode explicitly (fail-open with alert is default)
 - All Supabase tables need RLS — no exceptions
 - Constitution supersedes all other dev practices — conflicts resolve in its favor
+
+## Active Technologies
+- Python 3.14 (MPS) / Python 3.11+ (CUDA) + PyTorch (MPS + CUDA), Ultralytics YOLOv8, scikit-learn (AUC), tqdm (001-model-diagnosis-fix)
+- File-based — `.pt` checkpoints, `.json` metrics, `.zip` datase (001-model-diagnosis-fix)
+
+## Recent Changes
+- 001-model-diagnosis-fix: Added Python 3.14 (MPS) / Python 3.11+ (CUDA) + PyTorch (MPS + CUDA), Ultralytics YOLOv8, scikit-learn (AUC), tqdm

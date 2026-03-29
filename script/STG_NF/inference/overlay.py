@@ -84,8 +84,8 @@ def _draw_score_bar(
     if fill > 0:
         cv2.rectangle(frame, (x, y), (x + fill, y + bar_h), fg, -1)
 
-    # Score text
-    txt = f"Normality: {normality:.2f}"
+    # Score text  (normality 1.0=safe, 0.0=anomalous)
+    txt = f"Normal: {normality:.2f}"
     cv2.putText(frame, txt, (x, y + bar_h + 14), FONT, 0.45, _WHITE, 1, cv2.LINE_AA)
 
 
@@ -122,22 +122,32 @@ def draw_global_alert(frame: np.ndarray) -> None:
 
 
 def draw_hud(
-    frame:         np.ndarray,
-    fps:           float,
-    tau:           float,
-    n_tracked:     int,
-    adapt_next_h:  Optional[float] = None,
+    frame:            np.ndarray,
+    fps:              float,
+    tau:              float,
+    n_tracked:        int,
+    adapt_next_h:     Optional[float] = None,
+    warmup_remaining: int = 0,
 ) -> None:
-    """Heads-up display: FPS, threshold, tracked persons, next adaptation."""
+    """Heads-up display: FPS, threshold, tracked persons, next adaptation, warmup."""
     lines = [
         f"FPS: {fps:.1f}",
-        f"tau: {tau:.4f}",
         f"Tracked: {n_tracked}",
     ]
+    if warmup_remaining > 0:
+        lines.append(f"Calibrating... ({warmup_remaining} samples left)")
     if adapt_next_h is not None:
         lines.append(f"Adapt in: {adapt_next_h:.1f}h")
 
     for i, txt in enumerate(lines):
         cv2.putText(
             frame, txt, (10, 22 + i * 20), FONT, 0.5, _WHITE, 1, cv2.LINE_AA
+        )
+
+    # Warmup: draw a yellow overlay so it's obvious the system isn't active yet
+    if warmup_remaining > 0:
+        h, w = frame.shape[:2]
+        cv2.putText(
+            frame, "CALIBRATING BASELINE – NO ALERTS YET",
+            (w // 2 - 220, h - 14), FONT, 0.55, _YELLOW, 2, cv2.LINE_AA,
         )
