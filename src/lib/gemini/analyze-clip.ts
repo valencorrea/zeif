@@ -1,5 +1,3 @@
-import "server-only";
-
 import { GoogleGenerativeAI, SchemaType, type ObjectSchema } from "@google/generative-ai";
 
 import { createClient } from "@/lib/supabase/server";
@@ -8,16 +6,16 @@ import { uploadVideoBuffer, waitForFileActive, deleteFile } from "./file-manager
 import type { AnalysisResult } from "./types";
 import { IncidentNotFoundError } from "./types";
 
-const DEFAULT_MODEL = "gemini-2.0-flash";
+const DEFAULT_MODEL = "gemini-2.5-flash";
 
 const ANALYSIS_SCHEMA: ObjectSchema = {
   type: SchemaType.OBJECT,
   properties: {
-    shoplifting: { type: SchemaType.BOOLEAN },
-    confidence: { type: SchemaType.NUMBER },
-    reasoning: { type: SchemaType.STRING },
+    shoplifting: { type: SchemaType.BOOLEAN as const },
+    confidence: { type: SchemaType.NUMBER as const },
+    reasoning: { type: SchemaType.STRING as const },
   },
-  required: ["shoplifting", "confidence", "reasoning"],
+  required: ["shoplifting", "confidence", "reasoning"] as string[],
 };
 
 const ANALYSIS_PROMPT =

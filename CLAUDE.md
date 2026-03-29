@@ -138,3 +138,10 @@ Use skills when applicable. Key skills for this project:
 - Every subsystem must define its failure mode explicitly (fail-open with alert is default)
 - All Supabase tables need RLS — no exceptions
 - Constitution supersedes all other dev practices — conflicts resolve in its favor
+
+## Active Technologies
+- TypeScript 5.8 (strict mode) + Next.js 15, React 19, @google/generative-ai 0.24, framer-motion, lucide-reac (004-direct-gemini-camera)
+- None for this feature (ephemeral clips only) (004-direct-gemini-camera)
+
+## Recent Changes
+- 004-direct-gemini-camera: Added TypeScript 5.8 (strict mode) + Next.js 15, React 19, @google/generative-ai 0.24, framer-motion, lucide-reac

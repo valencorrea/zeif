@@ -16,6 +16,11 @@
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
     },
+    "git-advanced-workflows": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "c42c3059154889e4f80818407c6634197eefe87dc752d6a0cad8cfc2391550bb"
+    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",
