@@ -1,5 +1,6 @@
-import { FaceDB } from '@/components/face-db';
+import { FaceDBView } from '@/components/face-db-view';
+import { FACE_RECORDS } from '@/lib/mock-data';
 
 export default function FaceDBPage() {
-  return <FaceDB />;
+  return <FaceDBView records={FACE_RECORDS} />;
 }

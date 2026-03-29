@@ -1,37 +1,28 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-:root {
-  --background: #fbfbe2;
-  --foreground: #1b1d0e;
-  --primary: #1b6b4d;
+body {
+  background: #eef0e2;
+  color: #1a1a1a;
+  font-size: 14px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --font-sans: var(--font-inter), sans-serif;
-  --font-mono: var(--font-geist-mono);
+*:focus-visible {
+  outline: 2px solid #c5e63a;
+  outline-offset: 2px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: oklch(0 0 0);
-    --foreground: #ededed;
-    --primary: #8bd6b1;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-.dark {
-  --background: oklch(0 0 0);
-  --foreground: #ededed;
-  --primary: #8bd6b1;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
-}
-
+/*
+ * Border-radius scale:
+ * Camera cards : 8px
+ * Face cards   : 10px
+ * Badges       : 4px
+ * Buttons      : 7px
+ */

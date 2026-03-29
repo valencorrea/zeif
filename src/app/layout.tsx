@@ -1,21 +1,16 @@
-import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Space_Grotesk } from 'next/font/google';
+import { AppShell } from '@/components/app-shell';
+import './globals.css';
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800", "900"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
-  title: "ARCHIVE_SIGIL | Security Command",
-  description: "Security command and control dashboard",
+  title: 'Zeif',
+  description: 'Real-time proactive security system',
 };
 
 export default function RootLayout({
@@ -24,12 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col selection:bg-[#a6f3cc] selection:text-[#002114]">
-        {children}
+    <html lang="en">
+      <body className={spaceGrotesk.className} style={{ margin: 0 }}>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
