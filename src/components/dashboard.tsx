@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
+  Video,
   Bell,
   Settings,
   UserCircle,
@@ -27,6 +28,7 @@ export function LeftSidebar({ isOpen = true }: { isOpen?: boolean }) {
   const pathname = usePathname();
   const navItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/' },
+    { label: 'Floor View', icon: Video, href: '/floor-view' },
     { label: 'Face DB', icon: ScanFace, href: '/face-db' },
   ];
 
