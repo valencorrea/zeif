@@ -234,6 +234,12 @@ La aplicacion esta deployada en [Vercel](https://vercel.com/):
 
 ---
 
+## Model & Datasets References
+
+* https://www.kaggle.com/datasets/odins0n/ucf-crime-dataset/code
+* https://github.com/TeCSAR-UNCC/PoseLift?tab=readme-ov-file
+* https://github.com/TeCSAR-UNCC/RetailS
+
 ## Video
 
 Proximamente
