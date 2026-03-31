@@ -242,4 +242,4 @@ La aplicacion esta deployada en [Vercel](https://vercel.com/):
 
 ## Video
 
-Proximamente
+[Demo](https://www.youtube.com/watch?v=JQmVYI2hcQ4)
